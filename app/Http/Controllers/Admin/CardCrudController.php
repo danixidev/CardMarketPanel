@@ -44,7 +44,8 @@ class CardCrudController extends CrudController
         CRUD::column('description');
 
         $this->crud->addColumn([
-            'label'     => 'collection', // Table column heading
+            'name'     => 'collection',
+            'label'     => 'Collection', // Table column heading
             'type'      => 'select_multiple',
             'name'      => 'collections', // the method that defines the relationship in your Model
             'entity'    => 'collections', // the method that defines the relationship in your Model
@@ -70,14 +71,17 @@ class CardCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(CardRequest::class);
+        CRUD::setValidation([
+            'name' => 'required|string',
+            'description' => 'required|string',
+        ]);
 
-        CRUD::field('id');
-        CRUD::field('name');
-        CRUD::field('description');
+        CRUD::field('name')->attributes(['required' => true]);
+        CRUD::field('description')->attributes(['required' => true]);
 
         $this->crud->addField([   // SelectMultiple = n-n relationship (with pivot table)
-            'label'     => "collection",
+            'name'     => "collection",
+            'label'     => "Collection",
             'type'      => 'select_multiple',
             'name'      => 'collections', // the method that defines the relationship in your Model
 
@@ -87,8 +91,11 @@ class CardCrudController extends CrudController
             'multiple' => true,
             'attribute' => 'name', // foreign key attribute that is shown to user
             'pivot'     => true, // on create&update, do you need to add/delete pivot table entries?
+
+            'validationRules' => 'required',
         ]);
 
+        $this->crud->setValidation();
 
         // CRUD::field('created_at');
         // CRUD::field('updated_at');

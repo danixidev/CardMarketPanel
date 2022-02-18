@@ -39,12 +39,14 @@ class CardCrudController extends CrudController
      */
     protected function setupListOperation()
     {
+        $this->crud->set('show.setFromDb', false);
+
         CRUD::column('id');
         CRUD::column('name');
         CRUD::column('description');
 
         $this->crud->addColumn([
-            'name'     => 'collection',
+            'name'      => 'collection',
             'label'     => 'Collection', // Table column heading
             'type'      => 'select_multiple',
             'name'      => 'collections', // the method that defines the relationship in your Model
@@ -61,6 +63,14 @@ class CardCrudController extends CrudController
          * - CRUD::column('price')->type('number');
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']);
          */
+
+        CRUD::addColumn([
+            'label' => "Card image",
+            'name' => "image",
+            'type' => 'image',
+            'crop' => true, // set to true to allow cropping, false to disable
+            'aspect_ratio' => 1, // omit or set to 0 to allow any aspect ratio
+        ]);
     }
 
     /**
@@ -71,16 +81,20 @@ class CardCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation([
-            'name' => 'required|string',
-            'description' => 'required|string',
+        $this->crud->addField([
+            'name'      => "name",
+            'label'      => "Name",
+
+            'validationRules' => 'required|string',
         ]);
+        $this->crud->addField([
+            'name'      => "description",
+            'label'      => "Description",
 
-        CRUD::field('name')->attributes(['required' => true]);
-        CRUD::field('description')->attributes(['required' => true]);
-
+            'validationRules' => 'required|string',
+        ]);
         $this->crud->addField([   // SelectMultiple = n-n relationship (with pivot table)
-            'name'     => "collection",
+            'name'      => "collection",
             'label'     => "Collection",
             'type'      => 'select_multiple',
             'name'      => 'collections', // the method that defines the relationship in your Model
@@ -94,11 +108,17 @@ class CardCrudController extends CrudController
 
             'validationRules' => 'required',
         ]);
+        $this->crud->addField([   // Upload
+            'name'      => 'image',
+            'label'     => 'Image',
+            'type'      => 'upload',
+            'upload'    => true,
+            'disk'      => 'cards', // if you store files in the /public folder, please omit this; if you store them in /storage or S3, please specify it;
+            // optional:
+        ]);
+
 
         $this->crud->setValidation();
-
-        // CRUD::field('created_at');
-        // CRUD::field('updated_at');
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
